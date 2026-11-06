@@ -1,0 +1,90 @@
+ERP + GOOGLE SHEETS AUTO SYNC SETUP
+===================================
+
+FILES
+1. erp.html
+2. erp-api.php
+3. erp-db.php
+4. Code.gs
+
+STEP 1 — GOOGLE SHEET READY KAREIN
+1. Google Drive mein ek blank Google Sheet banayein.
+2. Sheet khol kar Extensions > Apps Script par jayein.
+3. Code.gs ka purana code remove karke provided Code.gs ka complete code paste karein.
+4. Save karein.
+
+STEP 2 — WEB APP DEPLOY KAREIN
+1. Apps Script mein Deploy > New deployment click karein.
+2. Type: Web app select karein.
+3. Execute as: Me select karein.
+4. Who has access: Anyone select karein.
+5. Deploy karein aur permission Allow karein.
+6. Milne wala Web app URL copy karein. URL /exec par end hona chahiye.
+
+STEP 3 — ERP KO SHEET SE CONNECT KAREIN
+1. erp-db.php open karein.
+2. $googleSheetsWebhookUrl = ''; mein quotes ke andar copied /exec URL paste karein.
+3. erp-db.php aur Code.gs mein secret same rehna chahiye:
+   erp-alpha-sheets-2026
+
+STEP 4 — CPANEL PAR UPLOAD
+1. erp.html, erp-api.php aur erp-db.php same folder mein upload karein.
+2. Browser mein erp.html open karein.
+3. Ek test Product/Purchase add karein.
+4. Google Sheet mein Products, Inventory, Purchases aur dusre tabs auto create/update ho jayenge.
+
+RAW MATERIALS & COSTING
+- Raw Materials section mein pehle material master add karein (name, code, unit).
+- Purchase / Inward se quantity aur value raw-material stock mein add hoti hai.
+- Issue / Consumption for Production se quantity weighted-average cost par stock se minus hoti hai.
+- Consumed raw-material cost Profit & Loss mein direct production cost ke andar automatically include hoti hai.
+- Google Sheets mein Raw Materials, Raw Material Purchases aur Raw Material Usage ke separate tabs auto update hotay hain.
+
+CAPITAL & CASH/BANK
+- Capital Investment aur Withdrawal / Drawings ki entries Cash ya Bank account ke saath record karein.
+- Capital Equity hai; P&L income mein include nahi hota.
+- Capital section mein entries Edit/Delete aur complete Capital PDF report available hai.
+- Raw Material Purchase save karte waqt Payment From mein Cash ya Bank select karein.
+- Raw Material Purchase ka total selected account ke available balance se automatically minus hota hai.
+- Capital screen aur Capital PDF mein har raw material ki quantity, rate, supplier, payment account aur separate deduction show hoti hai.
+- Google Sheets ke Raw Material Purchases, Capital RM Utilization aur Cash & Bank Ledger tabs mein item-wise payment detail auto sync hoti hai.
+
+EXPENSE FOLDERS
+- Expense Folders section se apni categories/folders create aur modify karein.
+- Folder rename karne par us folder ki existing expense entries bhi update ho jati hain.
+- Expense History mein date/folder filter aur filtered PDF export available hai.
+
+GENERAL TRANSACTIONS & HEAD REPORTS
+- Custom heads create karein aur classification select karein: Other Income, Other Expense, ya Balance Sheet.
+- Har head ke andar Receipt / Money In aur Payment / Money Out entries record karein.
+- All Heads ya individual selected head ki report PDF export ki ja sakti hai.
+- Income/Expense classified heads P&L mein automatically include hotay hain; Balance Sheet heads P&L ko affect nahi karte.
+- Google Sheets mein Capital Entries, Expense Folders, Transaction Heads aur General Transactions tabs auto sync hotay hain.
+- Expense Folders tab har folder ka description, expense-entry count aur total expense dikhata hai.
+- Cash & Bank Ledger tab Capital aur General Transactions ki account-wise Money In/Out details aur running balance dikhata hai.
+- Cash & Bank Summary tab Cash aur Bank ka total inflow, outflow aur closing balance alag dikhata hai.
+- Dashboard Detailed Report tab har purchase, invoice, challan, raw material, expense aur general transaction ki item-wise description dikhata hai.
+- P&L Summary tab Sales, Finished Goods Cost, Raw Material Consumed, General Income/Expense aur Net Profit ko live summarize karta hai; Capital is report se excluded rehta hai.
+
+AUTO SYNC BEHAVIOR
+- Add, Edit aur Delete ke baad browser localStorage aur screen turant update hoti hai.
+- MySQL aur Google Sheets sync background mein start hota hai; save button network ka wait nahi karta.
+- Google Sheets mein internal auto-generated ID columns show nahi hotay.
+- Server temporarily unavailable ho to local browser copy safe rahegi aur warning show hogi.
+- Google Sheets mein manually rows edit na karein; next ERP save par ERP snapshot authoritative hoga.
+
+DATE-WISE SECTION REPORTS
+- Har main ERP section ke top par From Date, To Date aur Export This Section PDF option available hai.
+- Kisi aik din ki report ke liye From aur To mein same date select karein.
+- Products master current snapshot report deta hai; Inventory selected To Date tak reconstructed stock report deta hai.
+
+DELETE ALL ENTRIES
+- Sidebar mein DELETE ALL ENTRIES button available hai.
+- Password: 9mm9mm9mm
+- Ye Products, Purchases, Invoices, Challans, Expenses aur current Inventory sab clear karta hai.
+- Successful deletion Google Sheets ke related tabs ko bhi clear/update karti hai.
+
+IMPORTANT
+- Apps Script code change karne ke baad Deploy > Manage deployments > Edit > New version
+  select karke dobara Deploy karein.
+- PHP cURL extension cPanel hosting par enabled honi chahiye.
