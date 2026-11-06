@@ -1805,35 +1805,26 @@
         }
         remoteSyncRunning = false;
       }
+const storage = {
+  async get(key) {
+    const value = localStorage.getItem(key);
 
-      const storage = {
-        async get(key) {
-          try {
-            const res = await fetch(API_URL + "?action=get");
-            const json = await res.json();
-            if (
-              json.success &&
-              json.value !== null &&
-              json.value !== undefined
-            ) {
-              localStorage.setItem(key, json.value);
-              return { key, value: json.value, shared: true };
-            }
-          } catch (e) {
-            console.error("Server load error; using local copy", e);
-          }
-          const localValue = localStorage.getItem(key);
-          return localValue !== null
-            ? { key, value: localValue, shared: false }
-            : null;
-        },
-        set(key, value) {
-          // UI/local save foran; MySQL + Google Sheets background mein sync hotay hain.
-          localStorage.setItem(key, value);
-          queueRemoteSync(value);
-          return { key, value, localSaved: true, syncQueued: true };
-        },
-      };
+    return value !== null
+      ? { key, value, shared: false }
+      : null;
+  },
+
+  set(key, value) {
+    localStorage.setItem(key, value);
+
+    return {
+      key,
+      value,
+      localSaved: true,
+      syncQueued: false
+    };
+  }
+};
 
       let DATA = {
         settings: { ...COMPANY },
@@ -1904,51 +1895,62 @@
         }
       }
 
-      async function deleteAllEntries() {
-        const password = prompt("Enter the password to DELETE ALL ENTRIES:");
-        if (password === null) return;
-        if (
-          !confirm(
-            "All ERP data, including products and Google Sheets entries, will be deleted. Continue?",
-          )
-        )
-          return;
+     async function deleteAllEntries() {
+  const confirmation = prompt(
+    'Is browser ke tamam ERP records aur products mitane ke liye DELETE likhein:'
+  );
 
-        try {
-          // Kisi queued purane snapshot ko deletion ke baad data restore karne se rokein.
-          remoteSyncEpoch += 1;
-          remoteSyncPending = null;
-          const res = await fetch(API_URL + "?action=delete_all", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ password }),
-          });
-          const json = await res.json();
-          if (!res.ok || !json.success) {
-            showToast(
-              json.error === "Incorrect password"
-                ? "⚠️ Incorrect password"
-                : "⚠️ Delete failed",
-            );
-            return;
-          }
+  if (confirmation === null) return;
 
-          DATA = Object.assign(DATA, JSON.parse(json.value));
-          DATA.settings = { ...COMPANY };
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
-          render();
-          showToast(
-            json.sheetSync &&
-              json.sheetSync.configured &&
-              !json.sheetSync.success
-              ? "✔ All ERP data deleted; Google Sheets sync warning"
-              : "✔ Products and all entries deleted everywhere",
-          );
-        } catch (e) {
-          console.error("Delete all failed", e);
-          alert("Delete error: " + e.message);
-        }
+  if (confirmation.trim() !== 'DELETE') {
+    showToast('⚠️ DELETE nahi likha; koi data delete nahi hua');
+    return;
+  }
+
+  if (!confirm(
+    'Is browser ke tamam ERP records permanently delete honge. Continue?'
+  )) return;
+
+  try {
+    const cleanData = {
+      settings: { ...COMPANY },
+      products: [],
+      items: {},
+      purchases: [],
+      invoices: [],
+      challans: [],
+      expenses: [],
+      rawMaterials: [],
+      rawMaterialStock: {},
+      rawMaterialPurchases: [],
+      rawMaterialUsage: [],
+      capitalEntries: [],
+      expenseFolders: [],
+      expenseFoldersInitialized: true,
+      transactionHeads: [],
+      generalTransactions: [],
+      counters: {
+        invoice: 1,
+        purchase: 1,
+        challan: 1
       }
+    };
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(cleanData)
+    );
+
+    DATA = cleanData;
+  } catch (error) {
+    console.error('Local delete failed:', error);
+    alert('Local data clear nahi hua: ' + error.message);
+    return;
+  }
+
+  alert('Tamam ERP entries aur products is browser se delete ho gaye.');
+  location.reload();
+}
 
       function showToast(msg) {
         const t = document.getElementById("toast");
