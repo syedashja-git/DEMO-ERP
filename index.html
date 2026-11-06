@@ -1897,18 +1897,18 @@ const storage = {
 
      async function deleteAllEntries() {
   const confirmation = prompt(
-    'Is browser ke tamam ERP records aur products mitane ke liye DELETE likhein:'
+    'Enter DELETE:'
   );
 
   if (confirmation === null) return;
 
   if (confirmation.trim() !== 'DELETE') {
-    showToast('⚠️ DELETE nahi likha; koi data delete nahi hua');
+    showToast('⚠️ You did not type DELETE. No data was deleted.');
     return;
   }
 
   if (!confirm(
-    'Is browser ke tamam ERP records permanently delete honge. Continue?'
+    'All ERP records stored in this browser will be permanently deleted. Do you want to continue?'
   )) return;
 
   try {
@@ -1948,7 +1948,7 @@ const storage = {
     return;
   }
 
-  alert('Tamam ERP entries aur products is browser se delete ho gaye.');
+  alert('All Entries Delete Successfully.');
   location.reload();
 }
 
